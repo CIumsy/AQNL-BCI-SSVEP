@@ -26,8 +26,8 @@ import sys
 _IS_LINUX = sys.platform.startswith("linux")
 _IS_WINDOWS = sys.platform == "win32"
 
-# Same 24in 16:9 fallback run_ssvep_display.py uses if physical-size detection
-# comes back implausible.
+# Same 24in 16:9 fallback run_ssvep_display_sdl.py uses if physical-size
+# detection comes back implausible.
 _FALLBACK_MM_W, _FALLBACK_MM_H = 531.4, 298.9
 
 

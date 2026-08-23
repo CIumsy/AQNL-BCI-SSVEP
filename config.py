@@ -4,11 +4,10 @@ config.py
 
 Where the flickering squares go on screen, and how big they are.
 
-Every entry point reads these same values: main.py on Windows, this
-folder's own main.py on the Arduino UNO Q, and the zombie game. They live in one
-file because both machines must agree exactly. If they differ even
-slightly, the thresholds you calibrated on one machine are no longer
-valid on the other.
+Every entry point in this folder reads these same values: main.py and
+the zombie game. They live in one file so the geometry cannot drift
+between them -- if they differ even slightly, thresholds calibrated
+under one set of values are no longer valid under another.
 
 The target frequencies are NOT here. They are in run_ssvep_detection.py,
 because the classifier builds its filter bank and reference waves from
@@ -17,7 +16,7 @@ them.
 
 # EDIT ME: "cross" puts the squares up/right/down/left. "grid" puts them
 # on the diagonals (a 2x2). Same circle and same spacing either way -- it
-# is only a rotation. See run_ssvep_display.py for the picture.
+# is only a rotation.
 LAYOUT = "cross"
 
 # EDIT ME: how far your eyes are from the screen, in cm.

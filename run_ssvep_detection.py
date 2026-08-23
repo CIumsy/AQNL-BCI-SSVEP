@@ -2,18 +2,17 @@
 """
 run_ssvep_detection.py
 
-Reads EEG from the ADS1299 board, calibrates, and decodes which target
-the subject is looking at. This file has no display of its own.
+Reads EEG from the nEXG amplifier over Wi-Fi, calibrates, and decodes
+which target the subject is looking at. This file has no display of its
+own.
 
-Three ways to run it:
+Two ways to run it:
   1. On its own (python run_ssvep_detection.py) -- terminal only, no
      flickering squares at all. Needs fbcca_thresholds.json to already
      exist. Copy that file over from a machine that ran a full
      calibration. There is no network link between machines here on
      purpose; it is just a file you copy once.
-  2. Imported by the repository root's main.py, which adds the Tk display
-     for Windows.
-  3. Imported by this folder's own main.py, which runs the display or the
+  2. Imported by this folder's own main.py, which runs the display or the
      game in a separate process and this pipeline in the parent.
 
 WHAT IS RUNNING RIGHT NOW
@@ -335,7 +334,7 @@ def connect_and_calibrate(display=None):
 
     display may be None (headless/console-only -- see this module's
     docstring, use case 1) or any object with a set_highlight(freq_or_None)
-    method (e.g. run_ssvep_display.py's SSVEPDisplay) -- every call is
+    method (e.g. run_ssvep_display_sdl.py's SSVEPDisplay) -- every call is
     guarded so this works either way.
     """
     clf = FBCCAClassifier(frequencies=FREQUENCIES, sfreq=SAMPLING_RATE, window_sec=WINDOW_SEC,
@@ -604,7 +603,7 @@ def main():
     Reusing those thresholds is still an explicit choice at the SPACE
     prompt, not automatic. Declining it re-runs calibration console-guided:
     the per-trial instructions ("Look at the 13 Hz target" / "Look at the
-    CENTER") still print here, so it works if run_ssvep_display.py is
+    CENTER") still print here, so it works even if the display process is
     showing the targets on another screen -- there's just no green
     highlight to point at the right square for you."""
     if not os.path.exists(THRESH_OUT):

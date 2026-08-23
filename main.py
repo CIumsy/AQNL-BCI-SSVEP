@@ -32,8 +32,8 @@ wrong.
 
 Separate processes get separate interpreter locks, and the other CPU
 cores were idle anyway, so splitting fixes all three problems at once.
-This is why the repository root's main.py -- the Windows entry point,
-single-process and correct there -- must not be used on this board.
+This is why a single-process design -- fine on a desktop OS -- must not
+be used on this board.
 
 The display owns its own process and its own screen. It shows the green
 highlight when a target is detected, one fixed "Calibrating"/"Live"

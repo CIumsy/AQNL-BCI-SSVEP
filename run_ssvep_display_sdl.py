@@ -3,9 +3,8 @@
 run_ssvep_display_sdl.py
 
 Draws the flickering squares on Linux and the Arduino UNO Q, using the
-GPU and waiting for the screen's own refresh between frames.
-run_ssvep_display.py picks this backend automatically on Linux. On
-Windows it keeps the Tk backend, which already works well there.
+GPU and waiting for the screen's own refresh between frames. This is the
+display backend used directly in this folder.
 
 WHY IT EXISTS
 ---------------
@@ -49,10 +48,9 @@ So this file measures the real rate during a warm-up before the stimulus
 starts, and uses that. Only pass refresh_hz to the constructor if you
 have a better number than the screen reports.
 
-Public API is identical to run_ssvep_display.py's SSVEPDisplay --
-set_highlight(freq) / stop() / run_mainloop() -- so it is a drop-in
-substitute anywhere a `display` is expected (the root's main.py, this
-folder's main.py, run_ssvep_detection.py's helpers).
+This class's public API -- set_highlight(freq) / stop() / run_mainloop() --
+is the `display` contract used everywhere in this folder: main.py and
+run_ssvep_detection.py's helpers all expect exactly this.
 
 For the cleanest presentation on XFCE/X11, disable the compositor:
     xfconf-query -c xfwm4 -p /general/use_compositing -s false
@@ -208,8 +206,7 @@ class SSVEPDisplay:
 
     # ---------------- thread-safe control API ----------------
     def set_highlight(self, freq):
-        """Thread-safe -- call from the detection worker thread. Same
-        contract as run_ssvep_display.py's SSVEPDisplay.set_highlight()."""
+        """Thread-safe -- call from the detection worker thread."""
         with self._lock:
             self._highlight = None if freq is None else float(freq)
 

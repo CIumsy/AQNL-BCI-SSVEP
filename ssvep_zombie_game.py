@@ -53,7 +53,7 @@ which one to shoot first is part of the game, not a limitation.
 
 REAL BCI INTEGRATION
 ----------------------
-Same set_highlight(freq_or_None) contract as run_ssvep_display.py's
+Same set_highlight(freq_or_None) contract as run_ssvep_display_sdl.py's
 SSVEPDisplay -- ZombieGame is a drop-in substitute for it, which is what
 lets run_ssvep_detection.py's run_live_detection() drive either one
 unchanged. See this folder's main.py for the real, working wire-up
@@ -233,7 +233,7 @@ class Zombie:
 
 
 class ZombieGame:
-    # margin_px MUST match run_ssvep_display.py's SSVEPDisplay default (70).
+    # margin_px MUST match run_ssvep_display_sdl.py's SSVEPDisplay default (70).
     # It isn't just padding: compute_layout() folds it into the shrink-to-fit
     # solve, so a different margin can produce a different scale factor on
     # screens where the ideal layout doesn't fit -- which would move the
@@ -301,7 +301,7 @@ class ZombieGame:
     def set_highlight(self, freq):
         """Thread-safe -- call from the classifier's on_prediction(freq) /
         on_idle() (pass None) callbacks. Same name/contract as
-        run_ssvep_display.py's SSVEPDisplay.set_highlight(), so this
+        run_ssvep_display_sdl.py's SSVEPDisplay.set_highlight(), so this
         class is a drop-in substitute for it wherever a `display`
         argument with that interface is expected (e.g.
         run_ssvep_detection.py's run_live_detection())."""
@@ -353,7 +353,7 @@ class ZombieGame:
         """Builds the display and runs the game loop. BLOCKS until stop()
         is called or the window/display is closed. Must be called from
         your program's main thread -- SDL's video calls are only safe
-        there, same constraint Tk has (see run_ssvep_display.py)."""
+        there."""
         import pygame
         # Hardware-accelerated renderer, same API run_ssvep_display_sdl.py
         # uses. Imported here rather than at module scope so this file
@@ -473,7 +473,7 @@ class ZombieGame:
         # Dead centre -- NOT nudged up for the bottom UI, because the UI now
         # sits in the empty bottom margin band instead of in space taken from
         # the playfield. Any offset here would shift every target away from
-        # where run_ssvep_display.py put it during calibration.
+        # where run_ssvep_display_sdl.py put it during calibration.
         cx, cy = w / 2.0, h / 2.0
         # font_sm is now only the difficulty buttons; the "N Hz" captions
         # moved up to font_md so they stay readable from the 60cm viewing

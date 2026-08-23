@@ -15,8 +15,7 @@ The maths assumes a flat screen at right angles to where you are looking.
 Something that takes up angle theta at distance d is 2*d*tan(theta/2)
 across, and something sitting e degrees off to the side is d*tan(e) away
 from the centre. These are exact for a flat monitor, not small-angle
-approximations. run_ssvep_display.py has the full derivation and explains
-the "cross" and "grid" layouts.
+approximations.
 """
 
 import math
@@ -47,9 +46,9 @@ def target_offsets_px(n, radius_px, layout="cross"):
 
 def compute_layout(n, eccentricity_deg, stimulus_size_deg, viewing_distance_cm,
                     px_per_mm, work_w_px, work_h_px, layout="cross", margin_px=70):
-    """Everything run_ssvep_display.py's run_mainloop() computes before
-    it builds widgets, factored out so every rendering backend gets
-    pixel-identical target positions for the same physical parameters.
+    """Everything a display backend needs to compute before it draws the
+    targets, factored out so every rendering backend gets pixel-identical
+    target positions for the same physical parameters.
 
     px_per_mm may be a single number (square pixels) OR an (x, y) pair for
     displays whose horizontal and vertical pixel density differ. That
@@ -141,7 +140,7 @@ def compute_layout(n, eccentricity_deg, stimulus_size_deg, viewing_distance_cm,
 
 
 def print_layout_report(info, n, viewing_distance_cm, px_per_mm, tag="[layout]"):
-    """The same startup diagnostic block run_ssvep_display.py prints,
+    """The startup diagnostic block every display backend prints,
     factored out so every backend reports identically."""
     try:
         ppx, ppy = px_per_mm
