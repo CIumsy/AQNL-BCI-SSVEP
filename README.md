@@ -62,8 +62,13 @@ point of an assistive device that has to work the moment someone sits down.
 | Arduino UNO Q | The only compute in the project |
 | nEXG wireless EEG amplifier | 16 channels, built on two ADS1299 chips. Streams over Wi-Fi via WebSocket on port 81. We use 3 of the 16. |
 | 5 electrodes | O1, Oz, O2 + reference + bias |
-| A **120 Hz** display | Not optional - see *Why the refresh rate matters* |
+| A **120 Hz** display | Recommended - see *Why the refresh rate matters* |
 | Battery for the EEG board | Keeps the body-connected side isolated from mains |
+
+The board has no HDMI port - the display connects over USB-C (DisplayPort
+Alt-Mode), the same cable that can also power the board:
+
+![Arduino UNO Q connected to a 120Hz display monitor](docs/uno_q_display_connection.png)
 
 ---
 
@@ -415,4 +420,4 @@ decoder builds its filters from them.
 
 ## Licence
 
-See the LICENSE file in the repository root.
+GNU General Public License v3.0. See the LICENSE file in the repository root.
