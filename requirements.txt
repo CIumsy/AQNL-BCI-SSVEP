@@ -1,0 +1,26 @@
+# Runtime dependencies for the UNO Q build.
+#
+#   pip install -r requirements.txt
+#
+# Versions are the ones this was developed and tested against. They are
+# minimums, not pins, so a newer release is fine.
+
+websocket-client>=1.9.0     # talks to the nEXG over Wi-Fi (imports as `websocket`)
+pylsl>=1.18.2               # publishes the EEG stream over LSL
+numpy>=2.0                  # buffers and the correlation maths
+scipy>=1.13                 # Butterworth sub-band filters, notch, Welch
+
+# The flickering targets and the game. On the Arduino UNO Q install this
+# from the system packages instead of pip:
+#
+#   sudo apt install python3-pygame
+#
+# The apt build is compiled against the board's own SDL2, which is what
+# gives a real vsync-locked GPU surface. A pip wheel may not be, and
+# without vsync the stimulus timing is wrong (see run_ssvep_display_sdl.py).
+pygame>=2.6.0
+
+# Only needed for sessions/visualize_sessions.py, the offline plotting and
+# replay tool. Not imported by anything that runs during a session, so it
+# can be skipped on the board.
+matplotlib>=3.8
