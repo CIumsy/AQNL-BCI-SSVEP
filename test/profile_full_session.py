@@ -2,10 +2,10 @@
 """
 test/profile_full_session.py
 
-The REAL run_uno_q session -- real ADS1299 stream, real calibration, real
+The REAL main.py session -- real ADS1299 stream, real calibration, real
 detection, real game -- with per-second performance logging added. This is
-not a dry run: put the electrodes on and it behaves exactly like
-`python3 run_uno_q.py`, just noisier.
+not a dry run: put the cap or band on and it behaves exactly like
+`python3 main.py`, just noisier.
 
 It exists because the two halves can only starve each other while both are
 actually working, and the numbers that matter are on opposite sides of a
@@ -51,11 +51,11 @@ import run_ssvep_detection as det                                      # noqa: E
 from ads1299_stream import SAMPLING_RATE                               # noqa: E402
 from config import (ECCENTRICITY_DEG, LAYOUT, STIMULUS_SIZE_DEG,       # noqa: E402
                      VIEWING_DISTANCE_CM)
-from run_uno_q import RemoteDisplay                                    # noqa: E402
+from main import RemoteDisplay                                         # noqa: E402
 
 
 def _debug_child(cmd_q, stat_q, freqs, layout, ecc, size, dist, game_mode, difficulty):
-    """Same as run_uno_q._display_process, plus the stats hook wired to
+    """Same as main._display_process, plus the stats hook wired to
     stat_q. Kept in step with that function deliberately -- if you change
     the real child, change this too."""
     sys.path.insert(0, _ROOT)
@@ -76,7 +76,7 @@ def _debug_child(cmd_q, stat_q, freqs, layout, ecc, size, dist, game_mode, diffi
                            stimulus_size_deg=size, viewing_distance_cm=dist,
                            difficulty=difficulty, enable_keyboard_debug_gaze=False,
                            fullscreen=True,
-                           # Kept identical to run_uno_q.py so this measures
+                           # Kept identical to main.py so this measures
                            # the real thing, including the env override.
                            render_scale=float(os.environ.get("SSVEP_RENDER_SCALE", 1.0)))
         game.set_armed(False)
@@ -118,7 +118,7 @@ def main():
     freqs = det.FREQUENCIES
 
     print("=" * 84)
-    print(" run_uno_q DEBUG -- real hardware, real calibration, real detection")
+    print(" main.py DEBUG -- real hardware, real calibration, real detection")
     print(f" mode = {'GAME' if game_mode else 'detection'} | "
           f"SAMPLING_RATE = {SAMPLING_RATE} Hz | targets {freqs}")
     print("=" * 84)

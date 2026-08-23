@@ -2,10 +2,10 @@
 """
 test/test_combined_debug.py
 
-THE pre-electrode check. Runs the exact parent/child architecture
-run_uno_q.py uses -- SDL display in a child process, ADS1299 stream in
+THE pre-cap/band check. Runs the exact parent/child architecture
+main.py uses -- SDL display in a child process, ADS1299 stream in
 the parent -- and reports, once per second, whether BOTH are healthy at
-the same time. No electrodes, no calibration, no EEG needed: this
+the same time. No cap or band, no calibration, no EEG needed: this
 measures sample throughput and frame pacing only, which don't depend on
 signal quality at all.
 
@@ -234,8 +234,8 @@ def main():
 
     if rate_ok and drops_ok:
         print("\nBoth halves are healthy running together. The parent/child split is")
-        print("working -- go ahead and connect the electrodes, then run:")
-        print("    python3 run_uno_q.py")
+        print("working -- go ahead and put the cap or band on, then run:")
+        print("    python3 main.py")
     else:
         if not rate_ok:
             eff = SAMPLING_RATE / mean_rate

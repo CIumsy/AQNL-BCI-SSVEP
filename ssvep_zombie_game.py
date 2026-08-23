@@ -56,8 +56,8 @@ REAL BCI INTEGRATION
 Same set_highlight(freq_or_None) contract as run_ssvep_display.py's
 SSVEPDisplay -- ZombieGame is a drop-in substitute for it, which is what
 lets run_ssvep_detection.py's run_live_detection() drive either one
-unchanged. See run_uno_q.py for the real, working wire-up (calibrates
-first, then arms the game, all on one hardware connection). Minimal
+unchanged. See this folder's main.py for the real, working wire-up
+(calibrates first, then arms the game, all on one hardware connection). Minimal
 pattern:
 
     game = ZombieGame(frequencies=[7, 13, 15, 17], layout="cross",
@@ -275,7 +275,7 @@ class ZombieGame:
         # which is why calibration came out at chance. Quartering the
         # pixels brings the render back inside budget and restores 120Hz.
         self.render_scale = float(render_scale)
-        # Disarmed = squares flicker, but NOTHING spawns. run_uno_q holds
+        # Disarmed = squares flicker, but NOTHING spawns. main.py holds
         # the game here while threshold calibration runs, so zombies don't
         # crawl across the screen while the subject is trying to fixate a
         # prompted target. Standalone play arms immediately.

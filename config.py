@@ -4,8 +4,8 @@ config.py
 
 Where the flickering squares go on screen, and how big they are.
 
-Every entry point reads these same values: main.py on Windows,
-run_uno_q.py on the Arduino UNO Q, and the zombie game. They live in one
+Every entry point reads these same values: main.py on Windows, this
+folder's own main.py on the Arduino UNO Q, and the zombie game. They live in one
 file because both machines must agree exactly. If they differ even
 slightly, the thresholds you calibrated on one machine are no longer
 valid on the other.

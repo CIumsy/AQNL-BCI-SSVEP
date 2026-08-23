@@ -11,9 +11,10 @@ Three ways to run it:
      exist. Copy that file over from a machine that ran a full
      calibration. There is no network link between machines here on
      purpose; it is just a file you copy once.
-  2. Imported by main.py, which adds the Tk display for Windows.
-  3. Imported by run_uno_q.py, which runs the display or the game in a
-     separate process and this pipeline in the parent.
+  2. Imported by the repository root's main.py, which adds the Tk display
+     for Windows.
+  3. Imported by this folder's own main.py, which runs the display or the
+     game in a separate process and this pipeline in the parent.
 
 WHAT IS RUNNING RIGHT NOW
 ---------------------------
@@ -139,7 +140,7 @@ CHANNEL_INDICES = [0, 1, 2]
 # derived from it, e.g. sub-band edges scale with min(this)) -- change the
 # count or the values here and the FBCCA reference bank, calibration
 # trial list, threshold cache, AND every display/game that imports
-# FREQUENCIES from this module (main.py, run_uno_q.py) all
+# FREQUENCIES from this module (both copies of main.py) all
 # follow automatically -- this is the only place it's set. CONFIRMED
 # WORKING on real hardware -- see the module docstring's TARGET
 # FREQUENCIES section before changing this.
@@ -307,7 +308,7 @@ def prompt_skip_calibration(timeout_sec=None, max_age_sec=None):
     return True only on an explicit SPACE press. Never skips on its own:
     a timeout, any other key, a missing thresholds file, or a stale one
     all mean "calibrate". Shared by this module's own main() and by
-    run_uno_q.py so both behave identically.
+    this folder's main.py so both behave identically.
     """
     timeout_sec = SKIP_PROMPT_TIMEOUT_SEC if timeout_sec is None else timeout_sec
     max_age_sec = THRESH_MAX_AGE_SEC if max_age_sec is None else max_age_sec

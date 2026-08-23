@@ -51,8 +51,8 @@ have a better number than the screen reports.
 
 Public API is identical to run_ssvep_display.py's SSVEPDisplay --
 set_highlight(freq) / stop() / run_mainloop() -- so it is a drop-in
-substitute anywhere a `display` is expected (main.py, run_uno_q.py,
-run_ssvep_detection.py's helpers).
+substitute anywhere a `display` is expected (the root's main.py, this
+folder's main.py, run_ssvep_detection.py's helpers).
 
 For the cleanest presentation on XFCE/X11, disable the compositor:
     xfconf-query -c xfwm4 -p /general/use_compositing -s false
@@ -177,7 +177,7 @@ class SSVEPDisplay:
         command_queue: optional multiprocessing.Queue. When given, the
         render loop drains it every frame and applies commands, which is
         how the detection process drives this display when the two run as
-        separate processes (see run_uno_q.py, and the GIL note in this
+        separate processes (see main.py, and the GIL note in this
         module's docstring for why they must be separate). Commands are
         ("highlight", freq_or_None) and ("quit",). "message"/"status" are
         still accepted but draw nothing (see set_message). Leaving it None keeps the

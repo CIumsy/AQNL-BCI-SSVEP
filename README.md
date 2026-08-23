@@ -3,9 +3,11 @@
 Look at one of four flickering squares, and the system works out which one you
 chose by reading your visual cortex. No mouse, no keyboard, no muscle movement.
 
-Everything runs **on the UNO Q itself** - EEG acquisition, signal processing,
-decoding, the 120 Hz visual stimulus, and the game on top of it. There is no
-host PC in the loop, no internet connection, and no cloud inference.
+The UNO Q is the brain of the whole system. EEG acquisition happens on the
+nEXG amplifier, not the board - the UNO Q receives the raw samples over
+Wi-Fi and, standalone, does everything after that: signal processing,
+decoding, the 120 Hz visual stimulus, and the game. There is no host PC in
+the loop, no internet connection, and no cloud inference.
 
 > Built for the Arduino Physical AI Challenge India 2026.
 > This folder is the deployable version - copy it to the board and run it.
@@ -14,9 +16,10 @@ host PC in the loop, no internet connection, and no cloud inference.
 
 ## Wiring
 
-Five electrodes: three signal on the occipital row, one common negative above
-the left ear, one reference above the right. Each goes to a specific pin on the
-nEXG's BOTTOM header row, marked on the diagram below.
+An EEG cap or band with five contacts, wired out to 2.54mm Dupont connectors:
+three signal contacts on the occipital row, one common negative above the
+left ear, one reference above the right. Each connector goes to a specific
+pin on the nEXG's BOTTOM header row, marked on the diagram below.
 
 ![nEXG pinout with the SSVEP montage](docs/nexg_pinout.png)
 
@@ -26,11 +29,12 @@ nEXG's BOTTOM header row, marked on the diagram below.
 
 When you stare at something that flickers at a steady rate, your visual cortex
 starts oscillating at that same rate. This is a **steady-state visually evoked
-potential (SSVEP)**, and you can measure it with electrodes on the back of the
-head.
+potential (SSVEP)**, and you can measure it with an EEG cap or band on the
+back of the head.
 
-So: four squares flicker at 7, 13, 15 and 17 Hz. Three electrodes at O1, Oz and
-O2 pick up the response, through an **nEXG** wireless amplifier. The nEXG brings
+So: four squares flicker at 7, 13, 15 and 17 Hz. Three cap-or-band contacts at O1, Oz
+and O2 pick up the response, wired by 2.54mm Dupont connectors into an
+**nEXG** wireless amplifier. The nEXG brings
 up its own Wi-Fi network; the UNO Q joins it, receives the samples, and does all
 the filtering, calibration and decoding itself. Whichever of the four
 frequencies shows up in your brainwaves tells us which square you were looking
@@ -61,8 +65,8 @@ point of an assistive device that has to work the moment someone sits down.
 |---|---|
 | Arduino UNO Q | The only compute in the project |
 | nEXG wireless EEG amplifier | 16 channels, built on two ADS1299 chips. Streams over Wi-Fi via WebSocket on port 81. We use 3 of the 16. |
-| 5 electrodes | O1, Oz, O2 + reference + bias |
-| A **120 Hz** display | Recommended - see *Why the refresh rate matters* |
+| EEG cap/band, 5 contacts | O1, Oz, O2 + reference + bias, 2.54mm Dupont connectors |
+| A **120 Hz** display | Recommended |
 | Battery for the EEG board | Keeps the body-connected side isolated from mains |
 
 The board has no HDMI port - the display connects over USB-C (DisplayPort
@@ -198,7 +202,7 @@ distance. Measure it. Every angle in the layout is derived from this
 number, so if it is wrong the targets are the wrong size on your retina
 and nothing will warn you.
 
-### 8. Check it before putting electrodes on
+### 8. Check it before putting the cap or band on
 
 ```bash
 python3 test/dryrun_no_electrodes.py   # display and game, no hardware needed
@@ -216,8 +220,8 @@ recovered later.
 ## Running it
 
 ```bash
-python3 run_uno_q.py            # calibration, then live detection
-python3 run_uno_q.py --game     # calibration, then the zombie game
+python3 main.py            # calibration, then live detection
+python3 main.py --game     # calibration, then the zombie game
 ```
 
 That is the whole interface. One command.
@@ -251,14 +255,17 @@ forced by a measurement rather than chosen up front.
 Running the display and the decoder in one Python process **does not work on
 this board**. When SDL waits for the screen's next refresh, it holds Python's
 global interpreter lock for the whole ~8.3 ms, which starves the thread
-receiving EEG. Measured on the UNO Q:
+receiving EEG. Measured on the UNO Q, back when the nEXG ran at 1000 Hz
+(it has since been lowered to 250 Hz - see `SAMPLING_RATE` in
+`ads1299_stream.py` - which does not change this: the GIL contention starves
+the receive thread by the same proportion at either rate):
 
 | | EEG samples received | Frames dropped |
 |---|---|---|
-| One process | 428 Hz (−57%) | 5.55% |
+| One process | 428 Hz (-57%) | 5.55% |
 | **Two processes** | **1001 Hz** | **0.17%** |
 
-So `run_uno_q.py` starts the display as a **separate operating-system process**
+So `main.py` starts the display as a **separate operating-system process**
 and talks to it over a queue. Separate processes get separate interpreter locks
 and separate CPU cores, and the UNO Q has cores to spare.
 
@@ -319,7 +326,7 @@ Otherwise it says nothing. Measured across 9 recorded sessions:
 Every calibration session saves its raw windows to disk, so the whole recorded
 history can be replayed through the exact classifier the live system uses. Two of
 the eleven sessions above are reported as failures rather than dropped: one
-recorded 0.0 µV (electrodes not connected), the other 2,875 µV (artefact-swamped).
+recorded 0.0 µV (cap/band not making contact), the other 2,875 µV (artefact-swamped).
 Both were hardware faults, not decoder faults.
 
 It also learns a "looking at nothing" class during calibration, so looking away
@@ -334,7 +341,7 @@ produces silence rather than a random pick. False-accept rate on those windows:
 
 | File | What it does |
 |---|---|
-| `run_uno_q.py` | The single entry point. Everything starts here. |
+| `main.py` | The single entry point. Everything starts here. |
 
 **The pipeline:**
 
@@ -408,9 +415,9 @@ decoder builds its filters from them.
 - **You must be able to move your eyes.** This reads where you are looking, not
   what you are thinking.
 - **120 Hz is recommended.** It runs at 60 Hz too, but the 17 Hz target loses
-  accuracy - see *Set the screen to 120 Hz* above.
-- **Electrode contact dominates everything.** Of 11 recorded sessions, 2 were
-  unusable - one flat (electrodes not connected), one swamped by artefacts.
+  accuracy.
+- **Cap/band contact dominates everything.** Of 11 recorded sessions, 2 were
+  unusable - one flat (cap/band not making contact), one swamped by artefacts.
   Both were hardware problems, not decoder problems.
 - **17 Hz is the weakest target** (69.8% vs ~80% for the others). SSVEP response
   gets smaller as frequency rises.

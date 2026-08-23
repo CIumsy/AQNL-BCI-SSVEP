@@ -2,9 +2,9 @@
 """
 test/dryrun_no_electrodes.py
 
-Instrumented dry run of `run_uno_q.py --game`. Walks the EXACT sequence a
+Instrumented dry run of `main.py --game`. Walks the EXACT sequence a
 real session goes through, using the real parent/child split and the real
-ZombieGame, but with fake gaze so it needs no electrodes -- and by default
+ZombieGame, but with fake gaze so it needs no cap or band -- and by default
 no hardware at all.
 
 It answers the four things that are hard to eyeball while recording:
@@ -51,7 +51,7 @@ PHASE_C_SEC = 15.0
 
 def _child(cmd_q, stat_q, freqs, layout, ecc, size, dist):
     """The real game child, plus a per-second stats report. Mirrors
-    run_uno_q._display_process's env handling so the SDL backend choice is
+    main._display_process's env handling so the SDL backend choice is
     identical to a real run."""
     sys.path.insert(0, _ROOT)
     if os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"):
@@ -124,10 +124,10 @@ def main():
     from config import (ECCENTRICITY_DEG, LAYOUT, STIMULUS_SIZE_DEG,
                          VIEWING_DISTANCE_CM)
     from run_ssvep_detection import FREQUENCIES
-    from run_uno_q import RemoteDisplay
+    from main import RemoteDisplay
 
     print("=" * 70)
-    print(" DEBUG DRY RUN of run_uno_q.py --game   (no electrodes needed)")
+    print(" DEBUG DRY RUN of main.py --game   (no cap or band needed)")
     print(f" hardware stream: {'ON (--stream)' if use_stream else 'OFF'}")
     print("=" * 70)
 
