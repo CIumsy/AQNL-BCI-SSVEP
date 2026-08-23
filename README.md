@@ -1,4 +1,4 @@
-# NeuroStrike - an SSVEP brain-computer interface running entirely on an Arduino UNO Q
+# NeuroGaze - an SSVEP brain-computer interface running entirely on an Arduino UNO Q
 
 Look at one of four flickering squares, and the system works out which one you
 chose by reading your visual cortex. No mouse, no keyboard, no muscle movement.
@@ -45,6 +45,14 @@ strongly each band correlates with each candidate frequency. Highest score wins
 compares your EEG against plain sine and cosine waves, which is why it works
 immediately on a new person with no training data.
 
+**Where this fits Physical AI.** The whole loop - sense the EEG, decide what
+the person is looking at, act on it in the game - runs standalone on the
+UNO Q's on-device compute (the Qualcomm QRB2210 Linux side), with no host PC
+and no cloud call anywhere in it. FBCCA is classical signal processing rather
+than a trained model, on purpose: a neural network would need calibration
+data from every new user before it could say anything, which defeats the
+point of an assistive device that has to work the moment someone sits down.
+
 ---
 
 ## Hardware you need
@@ -72,8 +80,7 @@ anything that touches the screen with `export DISPLAY=:0` first, otherwise
 
 ```bash
 sudo apt update
-sudo apt install -y python3-pip python3-venv python3-pygame \
-                    avahi-daemon libnss-mdns x11-xserver-utils
+sudo apt install -y python3-pip python3-venv python3-pygame x11-xserver-utils
 ```
 
 Why each one:
@@ -82,28 +89,27 @@ Why each one:
   compiled against the board's own SDL2, which is what gives a real
   vsync-locked GPU surface. Without vsync the stimulus timing is wrong and
   the decoder is correlating against a flicker the eye never saw.
-- **`avahi-daemon` + `libnss-mdns`** - the code reaches the amplifier at
-  `oric.local`, which is an mDNS name. Without these it cannot resolve and
-  you get a connection error that looks like the board is offline.
 - **`x11-xserver-utils`** - provides `xrandr`, which the display code reads
   to find the active screen mode.
 
-### 2. liblsl
+The stock Arduino OS image already has mDNS resolution (`oric.local`) and
+`liblsl` working out of the box, so on a normal install there is nothing
+else to do here. Step 4 below has the two-line fix for either one, only in
+case yours is missing something.
 
-`pylsl` is only a Python wrapper. On Linux the native library is not
-bundled, so it has to be installed separately. Check first:
+### 2. Check liblsl is there
 
 ```bash
 python3 -c "import pylsl; print(pylsl.library_version())"
 ```
 
-If that fails with *"LSL binary library file was not found"*, grab the
-release matching your architecture (the UNO Q is arm64) from
-<https://github.com/sccn/liblsl/releases> and install it:
+This should just print a version number. If it does, skip ahead - this is
+the only thing this step is for. It only fails if `liblsl`, the native
+library `pylsl` wraps, is missing, which is uncommon on the stock image:
 
 ```bash
-sudo dpkg -i liblsl-*-Linux*-arm64.deb
-sudo ldconfig
+sudo dpkg -i liblsl-*-Linux*-arm64.deb   # arm64 release from
+sudo ldconfig                            # github.com/sccn/liblsl/releases
 ```
 
 ### 3. Python environment
@@ -120,22 +126,41 @@ of downloading its own (which would lack vsync).
 
 ### 4. Join the nEXG's Wi-Fi
 
-The amplifier brings up its own network. Connect the UNO Q to it:
+The amplifier brings up its own network, with no password. Easiest way: click
+the network icon in the desktop taskbar, pick the nEXG's SSID from the list,
+connect.
+
+No desktop in front of you (SSH only)? Use the command line instead:
 
 ```bash
 nmcli device wifi list
 sudo nmcli device wifi connect "<nEXG SSID>"
+```
+
+Either way, check it actually worked:
+
+```bash
 ping -c3 oric.local
 ```
 
-The ping is the real test. If the name does not resolve, step 1's avahi
-packages are missing or the daemon is not running
-(`sudo systemctl enable --now avahi-daemon`).
+If that doesn't resolve, mDNS isn't working - install and start it:
 
-### 5. Set the screen to a 120 Hz mode
+```bash
+sudo apt install -y avahi-daemon libnss-mdns
+sudo systemctl enable --now avahi-daemon
+```
 
-A 120 Hz-class mode is a hard requirement, not a preference. At 60 Hz the
-17 Hz target gets 1.76 frames per half-cycle and simply cannot be drawn.
+### 5. Set the screen to 120 Hz
+
+120 Hz is what this was tested against and is recommended. You can also run
+at 60 Hz - the display still works, just less accurately, because the fastest
+target (17 Hz) needs more frames per half-cycle than 60 Hz can give it. The
+other three targets (7, 13, 15 Hz) are fine either way.
+
+Easiest way: open the desktop's **Display Settings** and pick a 120 Hz-class
+refresh rate for your monitor from there.
+
+No desktop in front of you (SSH only)? Use the command line instead:
 
 ```bash
 xrandr                       # list outputs and modes; note your output name
@@ -144,7 +169,8 @@ xrandr | grep '\*'           # the * marks the mode that is actually active
 ```
 
 Then turn off the desktop compositor, which adds a frame of latency and
-can defeat vsync:
+can defeat vsync (Window Manager Tweaks > Compositor, or from the command
+line):
 
 ```bash
 xfconf-query -c xfwm4 -p /general/use_compositing -s false
@@ -376,7 +402,8 @@ decoder builds its filters from them.
 
 - **You must be able to move your eyes.** This reads where you are looking, not
   what you are thinking.
-- **A 120 Hz screen is required.** At 60 Hz the higher targets cannot be drawn.
+- **120 Hz is recommended.** It runs at 60 Hz too, but the 17 Hz target loses
+  accuracy - see *Set the screen to 120 Hz* above.
 - **Electrode contact dominates everything.** Of 11 recorded sessions, 2 were
   unusable - one flat (electrodes not connected), one swamped by artefacts.
   Both were hardware problems, not decoder problems.
